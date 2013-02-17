@@ -1,19 +1,18 @@
 package com.es;
 
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import com.google.common.eventbus.EventBus;
 
 public class Publisher {
     private final EventBus eventBus;
-    private final Random rand;
     private boolean running;
+    private Integer curInt;
     
     public Publisher(EventBus eventBus) {
         this.eventBus = eventBus;
-        this.rand = new Random();
         this.running = false;
+        this.curInt = Integer.valueOf(0);
     }
 
     public void stop() {
@@ -29,14 +28,16 @@ public class Publisher {
     private class IntegerProducer implements Runnable {
         public void run() {
             while(running) {
+                Integer integer = new Integer(curInt++);
+                
+                System.out.println(System.currentTimeMillis() + ":\tPublishing " + integer);
+                eventBus.post(integer);
+                System.out.println(System.currentTimeMillis() + ":\tDone publishing " + integer);
+                
                 try {
                     TimeUnit.MILLISECONDS.sleep(500);
                 } catch (InterruptedException e) {
                 }
-                System.out.println("Publishing at " + System.currentTimeMillis());
-                eventBus.post(new IntegerEvent(rand.nextInt(100)));
-                System.out.println("Done publishing at " + System.currentTimeMillis());
-                System.out.println();
             }
         }
     }
